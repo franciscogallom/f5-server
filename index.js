@@ -10,11 +10,11 @@ app.use(cors())
 
 // Create user.
 app.post("/create", (req, res) => {
-  const { user, password, email, phone, position } = req.body
+  const { user, password, email, phone } = req.body
 
   db.query(
-    "INSERT INTO users (user, password, email, phone, position) VALUES (?, ?, ?, ?, ?)",
-    [user, password, email, phone, position],
+    "INSERT INTO users (user, password, email, phone) VALUES (?, ?, ?, ?, ?)",
+    [user, password, email, phone],
     (err) => {
       if (err) {
         console.log(err)
