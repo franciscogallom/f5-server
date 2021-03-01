@@ -13,13 +13,13 @@ app.post("/create", (req, res) => {
   const { user, password, email, phone } = req.body
 
   db.query(
-    "INSERT INTO users (user, password, email, phone) VALUES (?, ?, ?, ?, ?)",
+    "INSERT INTO users (user, password, email, phone) VALUES (?, ?, ?, ?)",
     [user, password, email, phone],
     (err) => {
       if (err) {
         console.log(err)
       } else {
-        res.send("User adding.")
+        res.send("user adding.")
       }
     }
   )
@@ -34,6 +34,26 @@ app.get("/users", (req, res) => {
       res.send(result)
     }
   })
+})
+
+// User log in.
+app.post("/login", (req, res) => {
+  const { user, password } = req.body
+
+  db.query(
+    "SELECT * FROM users WHERE user = ? AND password = ?",
+    [user, password],
+    (err, result) => {
+      if (err) {
+        res.send({ err })
+      }
+      if (result.length > 0) {
+        res.send(result)
+      } else {
+        res.send({ message: "usuario/contraseña incorrecto" })
+      }
+    }
+  )
 })
 
 // Update user.
