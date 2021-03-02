@@ -1,11 +1,13 @@
 const db = require("../../config/databaseConfig")
 const express = require("express")
 const router = express.Router()
-
 const bcrypt = require("bcrypt")
 
+const validation = require("../middlewares/validation")
+const userSchema = require("../validations/user")
+
 // Create user.
-router.post("/create", (req, res) => {
+router.post("/create", validation(userSchema), (req, res) => {
   const { user, password, email, phone } = req.body
 
   bcrypt.hash(password, 10, (err, hash) => {
