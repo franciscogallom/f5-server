@@ -40,6 +40,22 @@ router.get("/", (req, res) => {
   })
 })
 
+// Get user by username.
+router.get("/:user", (req, res) => {
+  const { user } = req.params
+  db.query("SELECT * FROM users WHERE user = ?", user, (err, result) => {
+    if (err) {
+      res.send({ err })
+    } else {
+      if (result.length > 0) {
+        res.send(result)
+      } else {
+        res.status(404).send({ err })
+      }
+    }
+  })
+})
+
 // User log in.
 router.post("/login", (req, res) => {
   const { user, password } = req.body
