@@ -9,14 +9,18 @@ const userSchema = require("../validations/user")
 // Create user.
 router.post("/create", validation(userSchema), (req, res) => {
   const { user, password, email, phone } = req.body
+  const date = new Date()
+  const timeStamp = `${date.getDate()}/${
+    date.getMonth() + 1
+  }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`
 
   bcrypt.hash(password, 10, (err, hash) => {
     if (err) {
-      console.log(err)
+      res.send({ err })
     } else {
       db.query(
-        "INSERT INTO users (user, password, email, phone) VALUES (?, ?, ?, ?)",
-        [user, hash, email, phone],
+        "INSERT INTO users (user, password, email, phone, created) VALUES (?, ?, ?, ?, ?)",
+        [user, hash, email, phone, timeStamp],
         (err) => {
           if (err) {
             res.send({ err })
