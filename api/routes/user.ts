@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express"
-import { MysqlError, queryCallback, QueryFunction } from "mysql"
+import { MysqlError } from "mysql"
 
 const db = require("../../config/databaseConfig")
 const router = express.Router()
