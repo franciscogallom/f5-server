@@ -34,3 +34,5 @@ router.get("/:id", (req: Request, res: Response) => {
     }
   )
 })
+
+module.exports = router

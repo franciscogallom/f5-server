@@ -86,11 +86,11 @@ router.post("/login", (req: Request, res: Response) => {
           if (response) {
             res.send(result)
           } else {
-            res.send({ message: "contraseña incorrecta" })
+            res.status(404).json({ message: "contraseña incorrecta" })
           }
         })
       } else {
-        res.send({ message: "el usuario no existe" })
+        res.status(404).json({ message: "el usuario no existe" })
       }
     }
   )
