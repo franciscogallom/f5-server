@@ -8,9 +8,11 @@ app.use(express.json())
 app.use(cors())
 
 const userRoute = require("./api/routes/user")
+const fieldsRoute = require("./api/routes/fields")
 
 // Routes
 app.use("/user", userRoute)
+app.use("/fields", fieldsRoute)
 
 app.listen(PORT, () => {
   console.log(`Server on port ${PORT}.`)
