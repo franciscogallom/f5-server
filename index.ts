@@ -7,11 +7,11 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-const userRoute = require("./api/routes/user")
+const usersRoute = require("./api/routes/users")
 const fieldsRoute = require("./api/routes/fields")
 
 // Routes
-app.use("/user", userRoute)
+app.use("/users", usersRoute)
 app.use("/fields", fieldsRoute)
 
 app.listen(PORT, () => {
