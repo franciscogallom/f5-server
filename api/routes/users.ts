@@ -82,13 +82,16 @@ router.post("/login", (req: Request, res: Response) => {
         res.send({ err })
       }
       if (result.length > 0) {
-        bcrypt.compare(password, result[0].password, (response: boolean) => {
-          if (response) {
-            res.send(result)
-          } else {
-            res.status(404).json({ message: "contraseña incorrecta" })
-          }
-        })
+        bcrypt
+          .compare(password, result[0].password)
+          .then((result: any) => {
+            if (result) {
+              res.send(result)
+            } else {
+              res.status(404).json({ message: "contraseña incorrecta" })
+            }
+          })
+          .catch(() => res.status(404).json({ message: "algo salio mal.." }))
       } else {
         res.status(404).json({ message: "el usuario no existe" })
       }
