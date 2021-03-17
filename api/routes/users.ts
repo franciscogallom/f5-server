@@ -81,7 +81,7 @@ router.post("/login", (req: Request, res: Response) => {
       if (err) {
         res.send({ err })
       }
-      if (result.length > 0) {
+      if (result?.length > 0) {
         bcrypt
           .compare(password, result[0].password)
           .then((result: any) => {
