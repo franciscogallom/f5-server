@@ -4,13 +4,40 @@ import { MysqlError } from "mysql"
 const db = require("../../config/databaseConfig")
 const router = express.Router()
 
+interface Field {
+  id: number
+  name: string
+  user: string
+  password: string
+  numberOfRatings: number
+  sumOfRatings: number
+  image: string
+  location: string
+  phone: string
+  price: string
+}
+
+interface newResult {
+  name: string
+  location: string
+  price: string
+  image: string
+  id: number
+}
+
 // Get all fields.
 router.get("/", (req: Request, res: Response) => {
   db.query("SELECT * FROM fields", (err: MysqlError, result: any) => {
     if (err) {
       res.send({ err })
     } else {
-      res.send(result)
+      const newResult: newResult[] = []
+      result.map((field: Field) => {
+        const { name, location, price, image, id } = field
+        const newField = { name, location, price, image, id }
+        newResult.push(newField)
+      })
+      res.send(newResult)
     }
   })
 })
