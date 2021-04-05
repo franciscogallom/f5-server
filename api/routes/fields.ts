@@ -23,6 +23,9 @@ interface newResult {
   price: string
   image: string
   id: number
+  numberOfRatings: number
+  sumOfRatings: number
+  phone: string
 }
 
 // Get all fields.
@@ -33,8 +36,26 @@ router.get("/", (req: Request, res: Response) => {
     } else {
       const newResult: newResult[] = []
       result.map((field: Field) => {
-        const { name, location, price, image, id } = field
-        const newField = { name, location, price, image, id }
+        const {
+          name,
+          location,
+          price,
+          image,
+          id,
+          numberOfRatings,
+          sumOfRatings,
+          phone,
+        } = field
+        const newField = {
+          name,
+          location,
+          price,
+          image,
+          id,
+          numberOfRatings,
+          sumOfRatings,
+          phone,
+        }
         newResult.push(newField)
       })
       res.send(newResult)
