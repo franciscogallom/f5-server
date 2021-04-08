@@ -30,37 +30,16 @@ interface newResult {
 
 // Get all fields.
 router.get("/", (req: Request, res: Response) => {
-  db.query("SELECT * FROM fields", (err: MysqlError, result: any) => {
-    if (err) {
-      res.send({ err })
-    } else {
-      const newResult: newResult[] = []
-      result.map((field: Field) => {
-        const {
-          name,
-          location,
-          price,
-          image,
-          id,
-          numberOfRatings,
-          sumOfRatings,
-          phone,
-        } = field
-        const newField = {
-          name,
-          location,
-          price,
-          image,
-          id,
-          numberOfRatings,
-          sumOfRatings,
-          phone,
-        }
-        newResult.push(newField)
-      })
-      res.send(newResult)
+  db.query(
+    "SELECT name, location, price, image, id, numberOfRatings, sumOfRatings, phone FROM fields",
+    (err: MysqlError, result: any) => {
+      if (err) {
+        res.send({ err })
+      } else {
+        res.send(result)
+      }
     }
-  })
+  )
 })
 
 // Get field by id.
