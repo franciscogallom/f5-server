@@ -7,32 +7,19 @@ const router = express.Router()
 interface Field {
   id: number
   name: string
-  user: string
-  password: string
   numberOfRatings: number
   sumOfRatings: number
   image: string
   location: string
   phone: string
   price: string
-}
-
-interface newResult {
-  name: string
-  location: string
-  price: string
-  image: string
-  id: number
-  numberOfRatings: number
-  sumOfRatings: number
-  phone: string
 }
 
 // Get all fields.
 router.get("/", (req: Request, res: Response) => {
   db.query(
-    "SELECT name, location, price, image, id, numberOfRatings, sumOfRatings, phone FROM fields",
-    (err: MysqlError, result: any) => {
+    "SELECT id, name, numberOfRatings, sumOfRatings, image, location, phone, price FROM fields",
+    (err: MysqlError, result: Field) => {
       if (err) {
         res.send({ err })
       } else {
@@ -48,7 +35,7 @@ router.get("/:id", (req: Request, res: Response) => {
   db.query(
     "SELECT * FROM fields WHERE id = ?",
     id,
-    (err: MysqlError, result: any) => {
+    (err: MysqlError, result: Field[]) => {
       if (err) {
         res.send({ err })
       } else {
