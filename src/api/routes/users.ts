@@ -14,10 +14,7 @@ router.post(
   validation(userSchema),
   (req: Request, res: Response) => {
     const { user, password, email, phone } = req.body
-    const date = new Date()
-    const timeStamp = `${date.getDate()}/${
-      date.getMonth() + 1
-    }/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`
+    const created = new Date().toLocaleString()
 
     bcrypt.hash(password, 10, (err: Error, hash: string) => {
       if (err) {
@@ -25,7 +22,7 @@ router.post(
       } else {
         db.query(
           "INSERT INTO users (user, password, email, phone, created) VALUES (?, ?, ?, ?, ?)",
-          [user, hash, email, phone, timeStamp],
+          [user, hash, email, phone, created],
           (err: MysqlError) => {
             if (err) {
               res.send({ err })
