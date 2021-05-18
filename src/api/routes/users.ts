@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express"
 import { MysqlError } from "mysql"
 
-const db = require("../../config/databaseConfig")
+const db = require("../../config/mySql")
 const router = express.Router()
 const bcrypt = require("bcrypt")
 
