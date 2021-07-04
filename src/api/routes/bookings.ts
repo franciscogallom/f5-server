@@ -24,4 +24,22 @@ router.get("/:fieldUsername", (req: Request, res: Response) => {
   })
 })
 
+router.put("/update", async (req: Request, res: Response) => {
+  const { id, numberOfField, hour } = req.body
+
+  // Example --> numberOfField = 'cancha 1' --> numberOfField.slice(5, 6) = '1'
+  const field = `field-${numberOfField.slice(7, 8)}`
+
+  try {
+    await Booking.findById(id, (err: MongoError, newBookings: any) => {
+      newBookings.bookings[field][hour] = false
+      newBookings.markModified("bookings")
+      newBookings.save()
+      res.send("Reserved!")
+    })
+  } catch (err) {
+    console.log(err)
+  }
+})
+
 module.exports = router

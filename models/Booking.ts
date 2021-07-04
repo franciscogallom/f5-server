@@ -11,7 +11,7 @@ const BookingSchema = new Schema({
   },
   startAt: {
     type: Number,
-    required: true,
+    required: false,
   },
 })
 
