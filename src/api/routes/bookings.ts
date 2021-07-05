@@ -32,10 +32,14 @@ router.put("/update", async (req: Request, res: Response) => {
 
   try {
     await Booking.findById(id, (err: MongoError, newBookings: any) => {
-      newBookings.bookings[field][hour] = false
-      newBookings.markModified("bookings")
-      newBookings.save()
-      res.send("Reserved!")
+      if (!newBookings.bookings[field][hour]) {
+        res.status(500).send()
+      } else {
+        newBookings.bookings[field][hour] = false
+        newBookings.markModified("bookings")
+        newBookings.save()
+        res.send("Reserved!")
+      }
     })
   } catch (err) {
     console.log(err)
