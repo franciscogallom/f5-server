@@ -18,8 +18,20 @@ interface Field {
 
 // Get all fields.
 router.get("/", (req: Request, res: Response) => {
+  db.query(`SELECT * FROM fields`, (err: MysqlError, result: Field) => {
+    if (err) {
+      res.send({ err })
+    } else {
+      res.send(result)
+    }
+  })
+})
+
+// Get fields with limit.
+router.get("/:limit", (req: Request, res: Response) => {
+  const { limit } = req.params
   db.query(
-    "SELECT user, id, name, numberOfRatings, sumOfRatings, image, location, phone, price FROM fields",
+    `SELECT * FROM fields LIMIT ${limit}`,
     (err: MysqlError, result: Field) => {
       if (err) {
         res.send({ err })
