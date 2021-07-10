@@ -31,7 +31,7 @@ router.get("/", (req: Request, res: Response) => {
 router.get("/:limit", (req: Request, res: Response) => {
   const { limit } = req.params
   db.query(
-    `SELECT * FROM fields LIMIT ${limit}`,
+    `SELECT * FROM fields ORDER BY sumOfRatings DESC LIMIT ${limit}`,
     (err: MysqlError, result: Field) => {
       if (err) {
         res.send({ err })
