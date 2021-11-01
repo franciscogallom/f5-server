@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express"
 import { MongoError, ObjectID } from "mongodb"
 
-const Booking = require("../../../models/Booking")
+const Booking = require("../../models/Booking")
 
 const router = Router()
 
