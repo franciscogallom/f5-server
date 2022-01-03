@@ -18,12 +18,12 @@ interface Bookings {
   startsAt: number
 }
 
-router.get("/today/:user", (req: Request, res: Response) => {
-  const { user } = req.params
+router.get("/today", (req: Request, res: Response) => {
+  const user = "franciscogallom"
   const today = new Date().toLocaleDateString()
 
   db.query(
-    `SELECT * FROM bookings WHERE user = '${user}' AND date = '${today}'`,
+    `SELECT * FROM bookings WHERE user = '${user}' AND date = '${today}' AND cancelled = 'false'`,
     (err: MysqlError, result: any) => {
       if (err) {
         res.send({ err })
@@ -31,6 +31,8 @@ router.get("/today/:user", (req: Request, res: Response) => {
         if (result.length > 0) {
           const hour = result[0].hour
           const numberOfField = result[0].field_number
+          const bookingId = result[0].id
+          const fieldUser = result[0].field_user
           db.query(
             `SELECT name, location, price FROM fields WHERE user = '${result[0].field_user}'`,
             (err: MysqlError, result: any) => {
@@ -39,6 +41,8 @@ router.get("/today/:user", (req: Request, res: Response) => {
               } else {
                 res.send([
                   {
+                    fieldUser,
+                    bookingId,
                     name: result[0].name,
                     location: result[0].location,
                     price: result[0].price,
@@ -101,6 +105,42 @@ router.put("/update", async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.log(err)
+  }
+})
+
+router.put("/cancel", async (req: Request, res: Response) => {
+  const { bookingId, numberOfField, hour, fieldUser } = req.body
+  const field = `field-${numberOfField.slice(7, 8)}`
+
+  try {
+    await Booking.find(
+      { fieldUsername: fieldUser },
+      (err: MongoError, result: any) => {
+        if (result[0].bookings[field][hour]) {
+          res.status(500).send()
+        } else {
+          result[0].bookings[field][hour] = true
+
+          db.query(
+            "UPDATE bookings SET cancelled = 1 WHERE id = ?",
+            [bookingId],
+            (err: MysqlError) => {
+              if (err) {
+                console.log(err)
+                res.status(500).send()
+              } else {
+                result[0].markModified("bookings")
+                result[0].save()
+                res.send("Cancelled!")
+              }
+            }
+          )
+        }
+      }
+    )
+  } catch (err) {
+    console.log(err)
+    res.status(500).send()
   }
 })
 
