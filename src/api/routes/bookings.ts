@@ -18,8 +18,8 @@ interface Bookings {
   startsAt: number
 }
 
-router.get("/today", (req: Request, res: Response) => {
-  const user = "franciscogallom"
+router.get("/today/:user", (req: Request, res: Response) => {
+  const { user } = req.params
   const today = new Date().toLocaleDateString()
 
   db.query(
