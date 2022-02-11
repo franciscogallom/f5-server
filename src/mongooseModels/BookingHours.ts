@@ -1,4 +1,4 @@
-const { model, Schema } = require("mongoose")
+import { model, Schema } from "mongoose"
 
 const BookingSchema = new Schema({
   fieldUsername: {
@@ -15,6 +15,4 @@ const BookingSchema = new Schema({
   },
 })
 
-const Booking = model("Booking", BookingSchema)
-
-module.exports = Booking
+export const BookingHours = model("Booking", BookingSchema)
