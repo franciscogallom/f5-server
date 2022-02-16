@@ -10,7 +10,7 @@ export const getFields = async (req: Request, res: Response) => {
     res.json(fields)
   } catch (error) {
     console.log("Something went wrong in: getFields - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -21,7 +21,7 @@ export const getFieldsWithLimit = async (req: Request, res: Response) => {
     res.json(fields)
   } catch (error) {
     console.log("Something went wrong in: getFieldsWithLimit - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -32,7 +32,7 @@ export const getFieldById = async (req: Request, res: Response) => {
     res.json(field)
   } catch (error) {
     console.log("Something went wrong in: getFieldById - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 

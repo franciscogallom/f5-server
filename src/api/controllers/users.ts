@@ -20,7 +20,7 @@ export const signup = async (req: Request, res: Response) => {
     bcrypt.hash(data.password, 10, async (error, hash: string) => {
       if (error) {
         console.log("bcrypt.hash error: -", error)
-        res.status(500)
+        res.status(500).send()
       } else {
         try {
           const newUser = await getRepository(User).create({
@@ -38,11 +38,11 @@ export const signup = async (req: Request, res: Response) => {
             })
           } else {
             console.log("result is undefined")
-            res.status(500)
+            res.status(500).send()
           }
         } catch (error) {
           console.log("Something went wrong in: signup - ", error)
-          res.status(500)
+          res.status(500).send()
         }
       }
     })
@@ -57,7 +57,7 @@ export const login = async (req: Request, res: Response) => {
       bcrypt.compare(password, result.password, (error, result: boolean) => {
         if (error) {
           console.log("bcrypt.compare error: ", error)
-          res.status(500)
+          res.status(500).send()
         } else if (result) {
           console.log(
             `successful login for user '${user}' (${new Date().toLocaleString()})`
@@ -74,7 +74,7 @@ export const login = async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.log("Something went wrong in: login - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -84,7 +84,7 @@ export const getUsers = async (req: Request, res: Response) => {
     res.json(users)
   } catch (error) {
     console.log("Something went wrong in: getUsers - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -96,11 +96,11 @@ export const getUser = async (req: Request, res: Response) => {
       res.json(response)
     } else {
       console.log(`'response' is undefined for username '${user}'`)
-      res.status(404)
+      res.status(404).send()
     }
   } catch (error) {
     console.log("Something went wrong in: getUser - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -114,11 +114,11 @@ export const update = async (req: Request, res: Response) => {
       res.json(result)
     } else {
       console.log(`'user' is undefined for id: ${id}`)
-      res.status(404)
+      res.status(404).send()
     }
   } catch (error) {
     console.log("Something went wrong in: update - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -128,12 +128,12 @@ export const remove = async (req: Request, res: Response) => {
     const result = await getRepository(User).delete(id)
     if (result.affected === 0) {
       console.log(`There is no user with id: ${id}`)
-      res.status(404)
+      res.status(404).send()
     } else {
       res.json(result)
     }
   } catch (error) {
     console.log("Something went wrong in: remove - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }

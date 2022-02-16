@@ -11,7 +11,7 @@ export const getBookings = async (req: Request, res: Response) => {
     res.json(bookings)
   } catch (error) {
     console.log("Something went wrong in: getBookings - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -25,7 +25,7 @@ export const getBookingsByFieldUsername = async (
     res.json(bookingHours)
   } catch (error) {
     console.log("Something went wrong in: getBookingsByFieldUsername - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -66,7 +66,7 @@ export const getBookingForUserForToday = async (
         res.json(response)
       } else {
         console.log("Something went wrong with fieldData")
-        res.status(500)
+        res.status(500).send()
       }
     } else {
       console.log(`${user} has no reservations for today ${today}`)
@@ -74,7 +74,7 @@ export const getBookingForUserForToday = async (
     }
   } catch (error) {
     console.log("Something wen wrong in: getBookingForUserForToday - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -91,7 +91,7 @@ export const reserve = async (req: Request, res: Response) => {
       console.log(
         `La ${field} de ${fieldUsername} ya esta alquilada a las ${hour}:00hs.`
       )
-      res.status(500)
+      res.status(500).send()
     } else {
       bookings[numberOfField][hour] = false
       const newBooking = getRepository(Booking).create({
@@ -109,12 +109,12 @@ export const reserve = async (req: Request, res: Response) => {
         res.json(result)
       } else {
         console.log("Something went wrong when saving the new booking.")
-        res.status(500)
+        res.status(500).send()
       }
     }
   } catch (error) {
     console.log("Something wen wrong in: reserve - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
 
@@ -129,7 +129,7 @@ export const cancel = async (req: Request, res: Response) => {
     const { bookings } = bookingHours
     if (bookings[numberOfField][hour]) {
       console.log("There is not a booking")
-      res.status(500)
+      res.status(500).send()
     } else {
       bookings[numberOfField][hour] = true
       const bookingToUpdate = await getRepository(Booking).findOne({
@@ -144,11 +144,11 @@ export const cancel = async (req: Request, res: Response) => {
         res.send("Turno cancelado satisfactoriamente.")
       } else {
         console.log("bookingToUpdate is undefined")
-        res.status(500)
+        res.status(500).send()
       }
     }
   } catch (error) {
     console.log("Something wen wrong in: cancel - ", error)
-    res.status(500)
+    res.status(500).send()
   }
 }
