@@ -1,19 +1,18 @@
 import dotenv from "dotenv"
 dotenv.config()
 
-import "reflect-metadata"
 import "./config/mongooseConnect"
 import express from "express"
 import cors from "cors"
 import morgan from "morgan"
-import { createConnection } from "typeorm"
 import { userRouter, fieldRouter, bookingRouter } from "./api/routes/index"
+import { connectTypeORM } from "./config/connectTypeORM"
 
 const PORT = process.env.PORT || 3001
 const app = express()
 
 // DB Connection.
-createConnection()
+connectTypeORM()
 
 // Middlewares.
 app.use(express.json())
