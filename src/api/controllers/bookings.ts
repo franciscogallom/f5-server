@@ -29,6 +29,20 @@ export const getBookingsByFieldUsername = async (
   }
 }
 
+export const getBookingsFromUser = async (req: Request, res: Response) => {
+  const { user } = req.params
+  try {
+    const bookings = await getRepository(Booking).find({
+      user,
+      cancelled: false,
+    })
+    res.json(bookings)
+  } catch (error) {
+    console.log("Something went wrong in: getBookingsFromUser - ", error)
+    res.status(500).send()
+  }
+}
+
 export const getBookingForUserForToday = async (
   req: Request,
   res: Response
