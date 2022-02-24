@@ -8,8 +8,20 @@ interface NewUser {
   phone: string
 }
 
+interface Email {
+  newEmail: string
+}
+
+interface Phone {
+  newPhoneNumber: string
+}
+
+interface Password {
+  newPass: string
+}
+
 export const validation =
-  (schema: SchemaOf<NewUser>) =>
+  (schema: SchemaOf<NewUser | Email | Phone | Password>) =>
   async (req: Request, res: Response, next: NextFunction) => {
     const body = req.body
     try {
