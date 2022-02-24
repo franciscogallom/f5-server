@@ -19,7 +19,7 @@ export const signup = async (req: Request, res: Response) => {
   } else {
     bcrypt.hash(data.password, 10, async (error, hash: string) => {
       if (error) {
-        console.log("bcrypt.hash error: -", error)
+        console.log("bcrypt.hash error in signup: -", error)
         res.status(500).send()
       } else {
         try {
@@ -56,7 +56,7 @@ export const login = async (req: Request, res: Response) => {
     if (result) {
       bcrypt.compare(password, result.password, (error, result: boolean) => {
         if (error) {
-          console.log("bcrypt.compare error: ", error)
+          console.log("bcrypt.compare error in login: ", error)
           res.status(500).send()
         } else if (result) {
           console.log(
@@ -104,20 +104,109 @@ export const getUser = async (req: Request, res: Response) => {
   }
 }
 
-export const update = async (req: Request, res: Response) => {
-  const { id } = req.params
+export const updateEmail = async (req: Request, res: Response) => {
+  const username = req.params.user
+  const { newEmail } = req.body
   try {
-    const user = await getRepository(User).findOne(id)
+    const user = await getRepository(User).findOne({ user: username })
     if (user) {
-      getRepository(User).merge(user, req.body)
-      const result = await getRepository(User).save(user)
-      res.json(result)
+      const emailAlreadyExist = await getRepository(User).findOne({
+        email: newEmail,
+      })
+      if (emailAlreadyExist) {
+        res.send({
+          error: true,
+          message: "El email ya existe.",
+        })
+      } else {
+        await getRepository(User).merge(user, { email: newEmail })
+        await getRepository(User).save(user)
+        res.send({
+          error: false,
+          message: "Email actualizado satisfactoriamente.",
+        })
+      }
     } else {
-      console.log(`'user' is undefined for id: ${id}`)
+      console.log(`'user' is undefined for username: ${username}`)
       res.status(404).send()
     }
   } catch (error) {
-    console.log("Something went wrong in: update - ", error)
+    console.log("Something went wrong in: updateEmail - ", error)
+    res.status(500).send()
+  }
+}
+
+export const updatePhone = async (req: Request, res: Response) => {
+  const username = req.params.user
+  const { newPhoneNumber } = req.body
+  try {
+    const user = await getRepository(User).findOne({ user: username })
+    if (user) {
+      const phoneAlreadyExist = await getRepository(User).findOne({
+        phone: newPhoneNumber,
+      })
+      if (phoneAlreadyExist) {
+        res.send({
+          error: true,
+          message: "El número ya existe.",
+        })
+      } else {
+        await getRepository(User).merge(user, { phone: newPhoneNumber })
+        await getRepository(User).save(user)
+        res.send({
+          error: false,
+          message: "Número actualizado satisfactoriamente.",
+        })
+      }
+    } else {
+      console.log(`'user' is undefined for username: ${username}`)
+      res.status(404).send()
+    }
+  } catch (error) {
+    console.log("Something went wrong in: updatePhone - ", error)
+    res.status(500).send()
+  }
+}
+
+export const updatePassword = async (req: Request, res: Response) => {
+  const username = req.params.user
+  const { currentPass, newPass } = req.body
+  try {
+    const user = await getRepository(User).findOne({ user: username })
+    if (user) {
+      bcrypt.compare(currentPass, user.password, (error, result: boolean) => {
+        if (error) {
+          console.log("bcrypt.compare error in updatePassword: ", error)
+          res.status(500).send()
+        } else if (result) {
+          // The current password is correct.
+          bcrypt.hash(newPass, 10, async (error, hash: string) => {
+            if (error) {
+              console.log("bcrypt.hash error in updatePassword: -", error)
+              res.status(500).send()
+            } else {
+              // The new password is encrypted and saved.
+              await getRepository(User).merge(user, { password: hash })
+              await getRepository(User).save(user)
+              res.send({
+                error: false,
+                message: "Contraseña actualizada satisfactoriamente.",
+              })
+            }
+          })
+        } else {
+          console.log(
+            `incorrect current password '${currentPass}' for user '${user.user}'`
+          )
+          res.send({
+            error: true,
+            message: "La contraseña actual no es correcta.",
+          })
+        }
+      })
+    }
+  } catch (error) {
+    console.log("Something went wrong in: updatePassword - ", error)
     res.status(500).send()
   }
 }
