@@ -8,6 +8,7 @@ import {
   updateEmail,
   updatePhone,
   updatePassword,
+  forgotPassword,
 } from "../controllers/users"
 import { validation } from "../middlewares/validation"
 import {
@@ -27,5 +28,6 @@ router.put("/update/phone/:user", validation(PhoneSchema), updatePhone)
 router.put("/update/password/:user", validation(PasswordSchema), updatePassword)
 router.delete("/delete/:id", remove)
 router.get("/:user", getUser)
+router.put("/forgot-password", forgotPassword)
 
 export default router

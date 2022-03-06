@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import { getRepository } from "typeorm"
 import { User } from "../../entities/User"
 import { validateExistingData } from "../utils/users/validateExistingData"
+import { sendMail } from "../utils/users/sendEmail"
 
 export const signup = async (req: Request, res: Response) => {
   const data = req.body
@@ -223,6 +224,41 @@ export const remove = async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.log("Something went wrong in: remove - ", error)
+    res.status(500).send()
+  }
+}
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  const { email } = req.body
+  try {
+    const user = await getRepository(User).findOne({ email })
+    if (user) {
+      const newPass = `nueva-contraseña-${
+        Math.floor(Math.random() * (10000 - 1000)) + 1000
+      }`
+      bcrypt.hash(newPass, 10, async (error, hash: string) => {
+        if (error) {
+          console.log("bcrypt.hash error in forgotPassword: -", error)
+          res.status(500).send()
+        } else {
+          await getRepository(User).merge(user, { password: hash })
+          await getRepository(User).save(user)
+          sendMail(email, newPass)
+            .then(() => {
+              res.send("Enviamos una nueva contraseña a tu correo.")
+            })
+            .catch((error) => {
+              console.log("sendMail error in forgotPassword: -", error)
+              res.status(500).send()
+            })
+        }
+      })
+    } else {
+      console.log(`'user' is undefined for email: ${email}`)
+      res.status(404).send()
+    }
+  } catch (error) {
+    console.log("Something went wrong in: forgotPassword - ", error)
     res.status(500).send()
   }
 }
