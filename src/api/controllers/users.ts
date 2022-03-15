@@ -4,6 +4,9 @@ import { getRepository } from "typeorm"
 import { User } from "../../entities/User"
 import { validateExistingData } from "../utils/users/validateExistingData"
 import { sendMail } from "../utils/users/sendEmail"
+import { Booking } from "../../entities/Booking"
+import { UserDeleted } from "../../entities/UserDeleted"
+import { BookingDeleted } from "../../entities/BookingDeleted"
 
 export const signup = async (req: Request, res: Response) => {
   const data = req.body
@@ -65,7 +68,9 @@ export const login = async (req: Request, res: Response) => {
           )
           res.send()
         } else {
-          console.log(`incorrect password '${password}' for user '${user}'`)
+          console.log(
+            `incorrect password '${password}' for user '${user} in login'`
+          )
           res.status(404).json({ message: "revisa los datos" })
         }
       })
@@ -212,18 +217,57 @@ export const updatePassword = async (req: Request, res: Response) => {
   }
 }
 
-export const remove = async (req: Request, res: Response) => {
-  const { id } = req.params
+export const removeUser = async (req: Request, res: Response) => {
+  const { username } = req.params
+  const { password } = req.body
+  const deleted = new Date().toLocaleString()
+  const user = await getRepository(User).findOne({ user: username })
+
   try {
-    const result = await getRepository(User).delete(id)
-    if (result.affected === 0) {
-      console.log(`There is no user with id: ${id}`)
-      res.status(404).send()
+    if (user) {
+      // Check the password
+      bcrypt.compare(
+        password,
+        user.password,
+        async (error, result: boolean) => {
+          if (error) {
+            console.log("bcrypt.compare error in removeUser: ", error)
+            res.status(500).send()
+          } else if (result) {
+            const result = await getRepository(User).delete({ user: username })
+            if (result.affected === 0) {
+              console.log(`There is no user with username: ${username}`)
+              res.status(404).send()
+            } else {
+              // - Save bookings deleted.
+              const bookingsOfTheDeletedUser = await getRepository(
+                Booking
+              ).find({ user: username, cancelled: false })
+              await getRepository(BookingDeleted).save(bookingsOfTheDeletedUser)
+              // - Save user deleted
+              const newUserDeleted = await getRepository(UserDeleted).create({
+                ...user,
+                deleted,
+              })
+              await getRepository(UserDeleted).save(newUserDeleted)
+              // - Delete all bookings from Bookings
+              await getRepository(Booking).delete({ user: username })
+              res.json(user)
+            }
+          } else {
+            console.log(
+              `incorrect password '${password}' for user '${username} in removeUser'`
+            )
+            res.json({ message: "La contraseña es incorrecta." })
+          }
+        }
+      )
     } else {
-      res.json(result)
+      console.log(`There is no user with username: ${username}`)
+      res.status(404).send()
     }
   } catch (error) {
-    console.log("Something went wrong in: remove - ", error)
+    console.log("Something went wrong in: removeUser - ", error)
     res.status(500).send()
   }
 }
