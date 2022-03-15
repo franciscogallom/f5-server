@@ -256,7 +256,7 @@ export const removeUser = async (req: Request, res: Response) => {
             }
           } else {
             console.log(
-              `incorrect password '${password}' for user '${username} in removeUser'`
+              `incorrect password '${password}' for user '${username}' in removeUser`
             )
             res.json({ message: "La contraseña es incorrecta." })
           }
