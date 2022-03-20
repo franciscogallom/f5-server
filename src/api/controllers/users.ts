@@ -7,6 +7,7 @@ import { sendMail } from "../utils/users/sendEmail"
 import { Booking } from "../../entities/Booking"
 import { UserDeleted } from "../../entities/UserDeleted"
 import { BookingDeleted } from "../../entities/BookingDeleted"
+import { sendVerificationCode } from "../utils/users/sendVerificationCode"
 
 export const signup = async (req: Request, res: Response) => {
   const data = req.body
@@ -15,9 +16,9 @@ export const signup = async (req: Request, res: Response) => {
   const existingData = await validateExistingData(user, email, phone)
 
   if (existingData) {
+    console.log("There are existingData", existingData)
     res.send({
       thereIsExistingData: true,
-      validationMessage: existingData,
       result: null,
     })
   } else {
@@ -37,7 +38,6 @@ export const signup = async (req: Request, res: Response) => {
             console.log(`user adding! '${data.user}' at ${created}`)
             res.send({
               thereIsExistingData: false,
-              validationMessage: "",
               result: newUser,
             })
           } else {
@@ -51,6 +51,38 @@ export const signup = async (req: Request, res: Response) => {
       }
     })
   }
+}
+
+export const verifyUserData = async (req: Request, res: Response) => {
+  const { user, email, phone } = req.body
+  const existingData = await validateExistingData(user, email, phone)
+
+  if (existingData) {
+    res.send({
+      thereIsExistingData: true,
+      validationMessage: existingData,
+    })
+  } else {
+    res.send({
+      thereIsExistingData: false,
+      validationMessage: "Datos verificados.",
+    })
+  }
+}
+
+export const emailVerification = async (req: Request, res: Response) => {
+  const { email } = req.body
+  const verificationCode = `${
+    Math.floor(Math.random() * (999999 - 100000)) + 100000
+  }`
+  sendVerificationCode(email, verificationCode)
+    .then(() => {
+      res.send(verificationCode)
+    })
+    .catch((error) => {
+      console.log("sendVerificationCode error in emailVerification: -", error)
+      res.status(500).send()
+    })
 }
 
 export const login = async (req: Request, res: Response) => {
