@@ -289,7 +289,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
           await getRepository(User).save(user)
           sendMail(email, newPass)
             .then(() => {
-              res.send("Enviamos una nueva contraseña a tu correo.")
+              res.send({
+                error: false,
+                message: "Enviamos una nueva contraseña a tu correo.",
+              })
             })
             .catch((error) => {
               console.log("sendMail error in forgotPassword: -", error)
@@ -299,7 +302,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
       })
     } else {
       console.log(`'user' is undefined for email: ${email}`)
-      res.status(404).send()
+      res.send({
+        error: true,
+        message: "El email no está registrado.",
+      })
     }
   } catch (error) {
     console.log("Something went wrong in: forgotPassword - ", error)
