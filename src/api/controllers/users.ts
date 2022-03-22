@@ -70,6 +70,24 @@ export const verifyUserData = async (req: Request, res: Response) => {
   }
 }
 
+export const verifyEmailExists = async (req: Request, res: Response) => {
+  const { newEmail } = req.body
+
+  try {
+    const emailAlreadyExist = await getRepository(User).findOne({
+      email: newEmail,
+    })
+    if (emailAlreadyExist) {
+      res.send("El email ya existe.")
+    } else {
+      res.send("")
+    }
+  } catch (error) {
+    console.log("Something went wrong in: verifyEmailExists - ", error)
+    res.status(500).send()
+  }
+}
+
 export const emailVerification = async (req: Request, res: Response) => {
   const { email } = req.body
   const verificationCode = `${
