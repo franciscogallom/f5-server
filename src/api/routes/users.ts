@@ -12,6 +12,7 @@ import {
   verifyUserData,
   emailVerification,
   verifyEmailExists,
+  updateUsername,
 } from "../controllers/users"
 import { validation } from "../middlewares/validation"
 import {
@@ -19,6 +20,7 @@ import {
   EmailSchema,
   PhoneSchema,
   PasswordSchema,
+  UsernameSchema,
 } from "../schemas/index"
 
 const router = Router()
@@ -27,6 +29,7 @@ router.get("/", getUsers)
 router.post("/signup", validation(UserSchema), signup)
 router.post("/login", login)
 router.put("/forgot-password", forgotPassword)
+router.put("/update/username/:user", validation(UsernameSchema), updateUsername)
 router.put("/update/email/:user", validation(EmailSchema), updateEmail)
 router.put("/update/phone/:user", validation(PhoneSchema), updatePhone)
 router.put("/update/password/:user", validation(PasswordSchema), updatePassword)

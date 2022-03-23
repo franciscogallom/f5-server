@@ -160,6 +160,38 @@ export const getUser = async (req: Request, res: Response) => {
   }
 }
 
+export const updateUsername = async (req: Request, res: Response) => {
+  const currentUsername = req.params.user
+  const { newUsername } = req.body
+  try {
+    const user = await getRepository(User).findOne({ user: currentUsername })
+    if (user) {
+      const usernameAlreadyExist = await getRepository(User).findOne({
+        user: newUsername,
+      })
+      if (usernameAlreadyExist) {
+        res.send({
+          error: true,
+          message: "El nombre de usuario ya existe.",
+        })
+      } else {
+        await getRepository(User).merge(user, { user: newUsername })
+        await getRepository(User).save(user)
+        res.send({
+          error: false,
+          message: "Usuario actualizado satisfactoriamente.",
+        })
+      }
+    } else {
+      console.log(`'user' is undefined for username: ${currentUsername}`)
+      res.status(404).send()
+    }
+  } catch (error) {
+    console.log("Something went wrong in: updateUsername - ", error)
+    res.status(500).send()
+  }
+}
+
 export const updateEmail = async (req: Request, res: Response) => {
   const username = req.params.user
   const { newEmail } = req.body
