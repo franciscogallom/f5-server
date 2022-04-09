@@ -6,7 +6,7 @@ const BookingSchema = new Schema({
     required: true,
   },
   bookings: {
-    type: Object,
+    type: [{ hours: [Boolean], fieldType: String }],
     required: true,
   },
   startAt: {
