@@ -95,19 +95,21 @@ export const getBookingForUserForToday = async (
 export const reserve = async (req: Request, res: Response) => {
   const { id, field, hour, user } = req.body
 
-  // Example --> field = 'cancha 1' --> field.slice(5, 6) = '1'
-  const numberOfField = `field-${field.slice(7, 8)}`
+  // Example --> field = 'cancha 1 (f7)' --> field.slice(5, 6) = '1'
+  const numberOfField = field.slice(7, 8)
 
   try {
     const bookingHours = await BookingHours.findById(id)
-    const { bookings, fieldUsername } = bookingHours
-    if (!bookings[numberOfField][hour]) {
+    const { bookings, fieldUsername, startsAt } = bookingHours
+    const vectorPosition = Number(hour) - startsAt
+
+    if (!bookings[numberOfField].hours[vectorPosition]) {
       console.log(
         `La ${field} de ${fieldUsername} ya esta alquilada a las ${hour}:00hs.`
       )
       res.status(500).send()
     } else {
-      bookings[numberOfField][hour] = false
+      bookings[numberOfField].hours[vectorPosition] = false
       const newBooking = getRepository(Booking).create({
         user,
         date: new Date().toLocaleDateString(),
@@ -134,18 +136,19 @@ export const reserve = async (req: Request, res: Response) => {
 
 export const cancel = async (req: Request, res: Response) => {
   const { bookingId, field, hour, fieldUser } = req.body
-  const numberOfField = `field-${field.slice(7, 8)}`
+  const numberOfField = field.slice(7, 8)
 
   try {
     const bookingHours = await BookingHours.findOne({
       fieldUsername: fieldUser,
     })
-    const { bookings } = bookingHours
-    if (bookings[numberOfField][hour]) {
+    const { bookings, startsAt } = bookingHours
+    const vectorPosition = Number(hour) - startsAt
+    if (bookings[numberOfField].hours[vectorPosition]) {
       console.log("There is not a booking")
       res.status(500).send()
     } else {
-      bookings[numberOfField][hour] = true
+      bookings[numberOfField].hours[vectorPosition] = true
       const bookingToUpdate = await getRepository(Booking).findOne({
         where: { id: bookingId },
       })

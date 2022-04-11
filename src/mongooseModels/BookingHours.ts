@@ -9,7 +9,7 @@ const BookingSchema = new Schema({
     type: [{ hours: [Boolean], fieldType: String }],
     required: true,
   },
-  startAt: {
+  startsAt: {
     type: Number,
     required: false,
   },

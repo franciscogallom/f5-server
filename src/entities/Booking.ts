@@ -17,7 +17,7 @@ export class Booking {
   @Column("varchar", { length: 3, nullable: false })
   hour: string
 
-  @Column("varchar", { length: 10, nullable: false })
+  @Column("varchar", { length: 30, nullable: false })
   field: string
 
   @Column("varchar", { length: 45, nullable: false })
