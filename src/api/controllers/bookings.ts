@@ -95,8 +95,8 @@ export const getBookingForUserForToday = async (
 export const reserve = async (req: Request, res: Response) => {
   const { id, field, hour, user } = req.body
 
-  // Example --> field = 'cancha 1 (f7)' --> field.slice(5, 6) = '1'
-  const numberOfField = field.slice(7, 8)
+  // Example --> field = 'cancha 1 (f7)' --> field.slice(5, 6) = '1' --> Then, -1 because is a vector position.
+  const numberOfField = field.slice(7, 8) - 1
 
   try {
     const bookingHours = await BookingHours.findById(id)
@@ -136,7 +136,7 @@ export const reserve = async (req: Request, res: Response) => {
 
 export const cancel = async (req: Request, res: Response) => {
   const { bookingId, field, hour, fieldUser } = req.body
-  const numberOfField = field.slice(7, 8)
+  const numberOfField = field.slice(7, 8) - 1
 
   try {
     const bookingHours = await BookingHours.findOne({
