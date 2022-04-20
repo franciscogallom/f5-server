@@ -9,6 +9,6 @@ const router = Router()
 
 router.get("/", getFields)
 router.get("/:limit", getFieldsWithLimit)
-router.get("/:id", getFieldById)
+router.get("/id/:id", getFieldById)
 
 export default router
