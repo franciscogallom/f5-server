@@ -4,6 +4,7 @@ import { getRepository } from "typeorm"
 import { Booking } from "../../entities/Booking"
 import { Field } from "../../entities/Field"
 import { BookingHours } from "../../mongooseModels/BookingHours"
+import { isValidHourToCancel } from "../utils/bookings/isValidHourToCancel"
 
 export const getBookings = async (req: Request, res: Response) => {
   try {
@@ -138,34 +139,44 @@ export const cancel = async (req: Request, res: Response) => {
   const { bookingId, field, hour, fieldUser } = req.body
   const numberOfField = field.slice(7, 8) - 1
 
-  try {
-    const bookingHours = await BookingHours.findOne({
-      fieldUsername: fieldUser,
+  if (!isValidHourToCancel(hour)) {
+    res.send({
+      error: true,
+      message: "Podías cancelar hasta 30 minutos antes.",
     })
-    const { bookings, startsAt } = bookingHours
-    const vectorPosition = Number(hour) - startsAt
-    if (bookings[numberOfField].hours[vectorPosition]) {
-      console.log("There is not a booking")
-      res.status(500).send()
-    } else {
-      bookings[numberOfField].hours[vectorPosition] = true
-      const bookingToUpdate = await getRepository(Booking).findOne({
-        where: { id: bookingId },
+  } else {
+    try {
+      const bookingHours = await BookingHours.findOne({
+        fieldUsername: fieldUser,
       })
-      if (bookingToUpdate) {
-        bookingToUpdate.cancelled = true
-        await getRepository(Booking).save(bookingToUpdate)
-        bookingHours.markModified("bookings")
-        bookingHours.save()
-
-        res.send("Turno cancelado satisfactoriamente.")
-      } else {
-        console.log("bookingToUpdate is undefined")
+      const { bookings, startsAt } = bookingHours
+      const vectorPosition = Number(hour) - startsAt
+      if (bookings[numberOfField].hours[vectorPosition]) {
+        console.log("There is not a booking")
         res.status(500).send()
+      } else {
+        bookings[numberOfField].hours[vectorPosition] = true
+        const bookingToUpdate = await getRepository(Booking).findOne({
+          where: { id: bookingId },
+        })
+        if (bookingToUpdate) {
+          bookingToUpdate.cancelled = true
+          await getRepository(Booking).save(bookingToUpdate)
+          bookingHours.markModified("bookings")
+          bookingHours.save()
+
+          res.send({
+            error: false,
+            message: "Turno cancelado satisfactoriamente.",
+          })
+        } else {
+          console.log("bookingToUpdate is undefined")
+          res.status(500).send()
+        }
       }
+    } catch (error) {
+      console.log("Something wen wrong in: cancel - ", error)
+      res.status(500).send()
     }
-  } catch (error) {
-    console.log("Something wen wrong in: cancel - ", error)
-    res.status(500).send()
   }
 }
