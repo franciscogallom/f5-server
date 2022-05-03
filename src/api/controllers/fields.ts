@@ -1,5 +1,7 @@
 import express, { Request, Response } from "express"
 import { getRepository } from "typeorm"
+import jwt from "jsonwebtoken"
+
 import { Field } from "../../entities/Field"
 
 const router = express.Router()
@@ -9,7 +11,14 @@ export const login = async (req: Request, res: Response) => {
   try {
     const user = await getRepository(Field).find({ user: username, password })
     if (user.length > 0) {
-      res.json({ data: user[0], error: false })
+      const userForToken = {
+        id: user[0].id,
+        username: user[0].user,
+      }
+
+      const token = jwt.sign(userForToken, `${process.env.SECRET}`)
+
+      res.json({ data: user[0], error: false, token })
     } else {
       console.log(
         `Field '${username}' and password '${password}' doesn't match.`
@@ -17,6 +26,7 @@ export const login = async (req: Request, res: Response) => {
       res.json({
         data: "El usuario y la contraseña no coinciden.",
         error: true,
+        token: null,
       })
     }
   } catch (error) {
