@@ -9,12 +9,15 @@ export const login = async (req: Request, res: Response) => {
   try {
     const user = await getRepository(Field).find({ user: username, password })
     if (user.length > 0) {
-      res.json(user[0])
+      res.json({ data: user[0], error: false })
     } else {
       console.log(
         `Field '${username}' and password '${password}' doesn't match.`
       )
-      res.status(404).send()
+      res.json({
+        data: "El usuario y la contraseña no coinciden.",
+        error: true,
+      })
     }
   } catch (error) {
     console.log("Something went wrong in: login (fields) - ", error)
