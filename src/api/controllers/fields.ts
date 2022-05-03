@@ -4,6 +4,23 @@ import { Field } from "../../entities/Field"
 
 const router = express.Router()
 
+export const login = async (req: Request, res: Response) => {
+  const { username, password } = req.body
+  try {
+    const user = await getRepository(Field).find({ user: username, password })
+    if (user.length > 0) {
+      res.json(user[0])
+    } else {
+      console.log(
+        `Field '${username}' and password '${password}' doesn't match.`
+      )
+      res.status(404).send()
+    }
+  } catch (error) {
+    console.log("Something went wrong in: login (fields) - ", error)
+  }
+}
+
 export const getFields = async (req: Request, res: Response) => {
   try {
     const fields = await getRepository(Field).find()
