@@ -34,6 +34,17 @@ export const login = async (req: Request, res: Response) => {
   }
 }
 
+export const whoami = async (req: Request, res: Response) => {
+  const { token } = req.body
+  try {
+    const data = jwt.verify(token, `${process.env.SECRET}`)
+    res.json(data)
+  } catch (error) {
+    console.log("Something went wrong in: whoami - ", error)
+    res.status(500).send()
+  }
+}
+
 export const getFields = async (req: Request, res: Response) => {
   try {
     const fields = await getRepository(Field).find()

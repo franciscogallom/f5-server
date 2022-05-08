@@ -4,6 +4,7 @@ import {
   getFields,
   getFieldsWithLimit,
   login,
+  whoami,
 } from "../controllers/fields"
 import userExtractor from "../middlewares/userExtractor"
 
@@ -13,5 +14,6 @@ router.get("/", userExtractor, getFields)
 router.get("/:limit", getFieldsWithLimit)
 router.get("/id/:id", getFieldById)
 router.post("/login", login)
+router.post("/whoami", whoami)
 
 export default router
