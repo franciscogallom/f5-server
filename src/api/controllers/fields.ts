@@ -3,6 +3,7 @@ import { getRepository } from "typeorm"
 import jwt from "jsonwebtoken"
 
 import { Field } from "../../entities/Field"
+import { BookingHours } from "../../mongooseModels/BookingHours"
 
 const router = express.Router()
 
@@ -11,15 +12,25 @@ export const login = async (req: Request, res: Response) => {
   try {
     const user = await getRepository(Field).find({ user: username, password })
     if (user.length > 0) {
-      const userForToken = {
-        id: user[0].id,
-        username: user[0].user,
-        name: user[0].name,
+      const { _id } = await BookingHours.findOne({
+        fieldUsername: user[0].user,
+      })
+
+      if (_id) {
+        const userForToken = {
+          idSQL: user[0].id,
+          idMongo: _id,
+          username: user[0].user,
+          name: user[0].name,
+        }
+        const token = jwt.sign(userForToken, `${process.env.SECRET}`)
+        res.json({ data: user[0], error: false, token })
+      } else {
+        console.log(`_id is undefined for fieldUsername: ${user[0].user}`)
+        res
+          .status(404)
+          .send(`_id is undefined for fieldUsername: ${user[0].user}`)
       }
-
-      const token = jwt.sign(userForToken, `${process.env.SECRET}`)
-
-      res.json({ data: user[0], error: false, token })
     } else {
       console.log(
         `Field '${username}' and password '${password}' doesn't match.`
