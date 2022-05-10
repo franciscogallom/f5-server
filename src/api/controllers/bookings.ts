@@ -59,10 +59,14 @@ export const getUserFromBooking = async (req: Request, res: Response) => {
       cancelled: false,
     })
     if (booking.length > 0) {
-      const user = await getRepository(User).find({ user: booking[0].user })
-      user.length > 0
-        ? res.json({ username: user[0].user, phone: user[0].phone })
-        : res.status(404).send("User not found.")
+      if (booking[0].user.includes("-createdByField")) {
+        res.json({ username: booking[0].user, phone: "" })
+      } else {
+        const user = await getRepository(User).find({ user: booking[0].user })
+        user.length > 0
+          ? res.json({ username: user[0].user, phone: user[0].phone })
+          : res.status(404).send("User not found.")
+      }
     } else {
       res.status(404).send("Booking not found.")
     }
