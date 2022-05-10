@@ -1,8 +1,9 @@
 import { Request, Response } from "express"
-import { getRepository } from "typeorm"
+import { getRepository, Like } from "typeorm"
 
 import { Booking } from "../../entities/Booking"
 import { Field } from "../../entities/Field"
+import { User } from "../../entities/User"
 import { BookingHours } from "../../mongooseModels/BookingHours"
 import { isValidHourToCancel } from "../utils/bookings/isValidHourToCancel"
 
@@ -40,6 +41,33 @@ export const getBookingsFromUser = async (req: Request, res: Response) => {
     res.json(bookings)
   } catch (error) {
     console.log("Something went wrong in: getBookingsFromUser - ", error)
+    res.status(500).send()
+  }
+}
+
+export const getUserFromBooking = async (req: Request, res: Response) => {
+  const { fieldUsername } = req.params
+  const { field, hour } = req.body
+  const date = new Date().toLocaleDateString()
+
+  try {
+    const booking = await getRepository(Booking).find({
+      fieldUser: fieldUsername,
+      field: Like(`%${field}%`),
+      date,
+      hour,
+      cancelled: false,
+    })
+    if (booking.length > 0) {
+      const user = await getRepository(User).find({ user: booking[0].user })
+      user.length > 0
+        ? res.json({ username: user[0].user, phone: user[0].phone })
+        : res.status(404).send("User not found.")
+    } else {
+      res.status(404).send("Booking not found.")
+    }
+  } catch (error) {
+    console.log("Something went wrong in: getBookingsFromParams - ", error)
     res.status(500).send()
   }
 }
