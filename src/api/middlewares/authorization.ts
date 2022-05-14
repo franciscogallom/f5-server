@@ -6,6 +6,8 @@ const whitelist = [
   "/users/login",
   "/users/signup",
   "/users/forgot-password",
+  "/users/verify-data",
+  "/users/send-verification-code",
 ]
 
 export default function (req: Request, res: Response, next: NextFunction) {
