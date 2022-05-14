@@ -15,6 +15,6 @@ export default function (req: Request, res: Response, next: NextFunction) {
     next()
   } catch (error) {
     console.log("Something went wrong in: userExtractor - ", error)
-    res.status(500).json({ error: "Token is missing or invalid." })
+    res.status(500).send("Unauthorized.")
   }
 }

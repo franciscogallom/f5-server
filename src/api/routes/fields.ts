@@ -7,11 +7,10 @@ import {
   requestInscription,
   whoami,
 } from "../controllers/fields"
-import userExtractor from "../middlewares/userExtractor"
 
 const router = Router()
 
-router.get("/", userExtractor, getFields)
+router.get("/", getFields)
 router.get("/:limit", getFieldsWithLimit)
 router.get("/id/:id", getFieldById)
 router.post("/login", login)

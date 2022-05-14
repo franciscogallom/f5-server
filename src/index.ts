@@ -7,6 +7,7 @@ import cors from "cors"
 import morgan from "morgan"
 import { userRouter, fieldRouter, bookingRouter } from "./api/routes/index"
 import { connectTypeORM } from "./config/connectTypeORM"
+import authorization from "./api/middlewares/userExtractor"
 
 const PORT = process.env.PORT || 3001
 const app = express()
@@ -18,6 +19,9 @@ connectTypeORM()
 app.use(express.json())
 app.use(cors())
 app.use(morgan("dev"))
+
+// Authorization middleware.
+app.use(authorization)
 
 // Routes.
 app.use("/users", userRouter)
