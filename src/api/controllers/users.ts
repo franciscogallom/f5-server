@@ -17,10 +17,11 @@ export const signup = async (req: Request, res: Response) => {
   const existingData = await validateExistingData(user, email, phone)
 
   if (existingData) {
-    console.log("There are existingData", existingData)
+    console.log("There are existingData: ", existingData)
     res.send({
       thereIsExistingData: true,
       result: null,
+      token: null,
     })
   } else {
     bcrypt.hash(data.password, 10, async (error, hash: string) => {
@@ -34,12 +35,18 @@ export const signup = async (req: Request, res: Response) => {
             password: hash,
             created,
           })
-          const result = await getRepository(User).save(newUser)
+          const result: any = await getRepository(User).save(newUser)
           if (result) {
             console.log(`user adding! '${data.user}' at ${created}`)
+            const userForToken = {
+              id: result.id,
+              username: data.user,
+            }
+            const token = jwt.sign(userForToken, `${process.env.SECRET}`)
             res.send({
               thereIsExistingData: false,
               result: newUser,
+              token,
             })
           } else {
             console.log("result is undefined")
