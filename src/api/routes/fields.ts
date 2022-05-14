@@ -4,6 +4,7 @@ import {
   getFields,
   getFieldsWithLimit,
   login,
+  requestInscription,
   whoami,
 } from "../controllers/fields"
 import userExtractor from "../middlewares/userExtractor"
@@ -15,5 +16,6 @@ router.get("/:limit", getFieldsWithLimit)
 router.get("/id/:id", getFieldById)
 router.post("/login", login)
 router.post("/whoami", whoami)
+router.post("/request-inscription", requestInscription)
 
 export default router

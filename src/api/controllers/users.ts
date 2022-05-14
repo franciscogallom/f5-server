@@ -1,5 +1,6 @@
-import { Request, Response } from "express"
+import { Request, Response, urlencoded } from "express"
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 import { getRepository } from "typeorm"
 import { User } from "../../entities/User"
 import { validateExistingData } from "../utils/users/validateExistingData"
@@ -106,24 +107,33 @@ export const emailVerification = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { user, password } = req.body
   try {
-    const result = await getRepository(User).findOne({ user })
-    if (result) {
-      bcrypt.compare(password, result.password, (error, result: boolean) => {
-        if (error) {
-          console.log("bcrypt.compare error in login: ", error)
-          res.status(500).send()
-        } else if (result) {
-          console.log(
-            `successful login for user '${user}' (${new Date().toLocaleString()})`
-          )
-          res.send()
-        } else {
-          console.log(
-            `incorrect password '${password}' for user '${user} in login'`
-          )
-          res.status(404).json({ message: "revisa los datos" })
+    const userResult = await getRepository(User).findOne({ user })
+    if (userResult) {
+      bcrypt.compare(
+        password,
+        userResult.password,
+        (error, result: boolean) => {
+          if (error) {
+            console.log("bcrypt.compare error in login: ", error)
+            res.status(500).send()
+          } else if (result) {
+            const userForToken = {
+              id: userResult.id,
+              username: userResult.user,
+            }
+            const token = jwt.sign(userForToken, `${process.env.SECRET}`)
+            res.json({ token })
+            console.log(
+              `successful login for user '${user}' (${new Date().toLocaleString()})`
+            )
+          } else {
+            console.log(
+              `incorrect password '${password}' for user '${user} in login'`
+            )
+            res.status(404).json({ message: "revisa los datos" })
+          }
         }
-      })
+      )
     } else {
       console.log(`the user '${user}' does not exist`)
       res.status(404).json({ message: "revisa los datos" })

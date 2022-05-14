@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"
 
 import { Field } from "../../entities/Field"
 import { BookingHours } from "../../mongooseModels/BookingHours"
+import { sendEmailToRequestInscription } from "../utils/fields/sendEmailToRequestInscription"
 
 const router = express.Router()
 
@@ -48,11 +49,45 @@ export const login = async (req: Request, res: Response) => {
 
 export const whoami = async (req: Request, res: Response) => {
   const { token } = req.body
+  if (!token) {
+    res.send({ idSQL: "", idMongo: "", username: "", name: "", iat: "" })
+  } else {
+    try {
+      const data = jwt.verify(token, `${process.env.SECRET}`)
+      res.json(data)
+    } catch (error) {
+      console.log("Something went wrong in: whoami - ", error)
+      res.status(500).send()
+    }
+  }
+}
+
+export const requestInscription = async (req: Request, res: Response) => {
+  const { name, location, phone, price } = req.body
+
   try {
-    const data = jwt.verify(token, `${process.env.SECRET}`)
-    res.json(data)
+    sendEmailToRequestInscription(name, location, phone, price)
+      .then((response) => {
+        if (response.accepted.length > 0) {
+          res.send(
+            "Tu solicitud ha sido recibida. En breve nos pondremos en contacto con vos."
+          )
+        } else {
+          console.log(
+            `Something went wrong in: sendEmailToRequestInscription (requestInscription) - response.accepted.length is not greater than 0`
+          )
+          res.status(500).send()
+        }
+      })
+      .catch((e) => {
+        console.log(
+          `Something went wrong in: sendEmailToRequestInscription (requestInscription) - `,
+          e
+        )
+        res.status(500).send()
+      })
   } catch (error) {
-    console.log("Something went wrong in: whoami - ", error)
+    console.log("Something went wrong in: requestInscription - ", error)
     res.status(500).send()
   }
 }
