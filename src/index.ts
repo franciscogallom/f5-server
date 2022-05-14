@@ -5,9 +5,9 @@ import "./config/mongooseConnect"
 import express from "express"
 import cors from "cors"
 import morgan from "morgan"
+import authorization from "./api/middlewares/authorization"
 import { userRouter, fieldRouter, bookingRouter } from "./api/routes/index"
 import { connectTypeORM } from "./config/connectTypeORM"
-import authorization from "./api/middlewares/userExtractor"
 
 const PORT = process.env.PORT || 3001
 const app = express()
