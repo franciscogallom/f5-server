@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"
 
 const whitelist = [
   "/fields/login",
+  "/fields/request-inscription",
   "/users/login",
   "/users/signup",
   "/users/forgot-password",
