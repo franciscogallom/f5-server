@@ -134,6 +134,7 @@ export const reserve = async (req: Request, res: Response) => {
   try {
     const bookingHours = await BookingHours.findById(id)
     const { bookings, fieldUsername, startsAt } = bookingHours
+    const fieldData = await getRepository(Field).find({ user: fieldUsername })
     const vectorPosition = Number(hour) - startsAt
 
     if (!bookings[numberOfField].hours[vectorPosition]) {
@@ -155,7 +156,15 @@ export const reserve = async (req: Request, res: Response) => {
       if (result.id.length > 0) {
         bookingHours.markModified("bookings")
         bookingHours.save()
-        res.json(result)
+        res.send({
+          fieldUser: result.fieldUser,
+          bookingId: result.id,
+          name: fieldData[0].name,
+          location: fieldData[0].location,
+          price: fieldData[0].price,
+          hour: result.hour,
+          field: result.field,
+        })
       } else {
         console.log("Something went wrong when saving the new booking.")
         res.status(500).send()
