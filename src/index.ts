@@ -12,9 +12,6 @@ import { connectTypeORM } from "./config/connectTypeORM"
 const PORT = process.env.PORT || 3001
 const app = express()
 
-// DB Connection.
-connectTypeORM()
-
 // Middlewares.
 app.use(express.json())
 app.use(cors())
@@ -29,5 +26,8 @@ app.use("/fields", fieldRouter)
 app.use("/bookings", bookingRouter)
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}!`)
+  // DB Connection.
+  connectTypeORM().then(() => {
+    console.log(`Server running on port ${PORT}!`)
+  })
 })
