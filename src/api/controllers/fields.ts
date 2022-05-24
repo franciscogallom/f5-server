@@ -124,4 +124,41 @@ export const getFieldById = async (req: Request, res: Response) => {
   }
 }
 
+export const timeRangeAndNumberOfField = async (
+  req: Request,
+  res: Response
+) => {
+  const { fieldUsername } = req.params
+  try {
+    const data = await BookingHours.findOne({ fieldUsername })
+    if (data) {
+      const hours = []
+      const fields = []
+      const fieldsQuantity = data.bookings.length
+      for (let index = data.startsAt; index <= data.lastBooking; index++) {
+        hours.push(index)
+      }
+      for (let index = 0; index < fieldsQuantity; index++) {
+        fields.push(index)
+      }
+      res.json({
+        hours,
+        fields,
+      })
+    } else {
+      console.log(
+        `Something went wrong in: timeRangeAndNumberOfField - No data for fieldUsername '${fieldUsername}'`
+      )
+      res
+        .status(404)
+        .send(
+          `Something went wrong in: timeRangeAndNumberOfField - No data for fieldUsername '${fieldUsername}'`
+        )
+    }
+  } catch (error) {
+    console.log("Something went wrong in: timeRangeAndNumberOfField - ", error)
+    res.status(500).send()
+  }
+}
+
 export default router
