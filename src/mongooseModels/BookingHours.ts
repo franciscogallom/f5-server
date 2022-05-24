@@ -13,6 +13,10 @@ const BookingSchema = new Schema({
     type: Number,
     required: false,
   },
+  lastBooking: {
+    type: Number,
+    required: false,
+  },
 })
 
 export const BookingHours = model("Booking", BookingSchema)
