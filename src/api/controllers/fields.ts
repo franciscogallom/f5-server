@@ -63,10 +63,10 @@ export const whoami = async (req: Request, res: Response) => {
 }
 
 export const requestInscription = async (req: Request, res: Response) => {
-  const { name, location, phone, price } = req.body
+  const { name, email, location, phone } = req.body
 
   try {
-    sendEmailToRequestInscription(name, location, phone, price)
+    sendEmailToRequestInscription(name, email, location, phone)
       .then((response) => {
         if (response.accepted.length > 0) {
           res.send(
