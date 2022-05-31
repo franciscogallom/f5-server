@@ -6,6 +6,7 @@ import { BookingDeleted } from "../entities/BookingDeleted"
 import { Field } from "../entities/Field"
 import { User } from "../entities/User"
 import { UserDeleted } from "../entities/UserDeleted"
+import { FixedBooking } from "../entities/FixedBooking"
 
 export const connectTypeORM = async () =>
   await createConnection({
@@ -15,5 +16,9 @@ export const connectTypeORM = async () =>
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [Booking, BookingDeleted, Field, User, UserDeleted],
+    entities: [Booking, BookingDeleted, Field, User, UserDeleted, FixedBooking],
+    migrations: ["src/migrations/**/*.ts"],
+    cli: {
+      migrationsDir: "src/migrations",
+    },
   })
