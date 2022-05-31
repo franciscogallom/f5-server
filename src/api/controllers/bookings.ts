@@ -4,7 +4,9 @@ import { getRepository, Like } from "typeorm"
 import { Booking } from "../../entities/Booking"
 import { Field } from "../../entities/Field"
 import { User } from "../../entities/User"
+import { FixedBooking } from "../../entities/FixedBooking"
 import { BookingHours } from "../../mongooseModels/BookingHours"
+import { FixedBookingTrigger } from "../../mongooseModels/FixedBookingTrigger"
 import { isValidHourToCancel } from "../utils/bookings/isValidHourToCancel"
 
 export const getBookings = async (req: Request, res: Response) => {
@@ -68,7 +70,26 @@ export const getUserFromBooking = async (req: Request, res: Response) => {
           : res.status(404).send("User not found.")
       }
     } else {
-      res.status(404).send("Booking not found.")
+      // If there isn't a booking created today, maybe there is a fixed booking for today.
+      const { startsAt } = await BookingHours.findOne({ fieldUsername })
+      // E.g: "Cancha 1" --> Number("1") - 1 = 0
+      const fieldNumber = Number(field.split(" ")[1]) - 1
+      // E.g: "18" --> Number("18") - 17 = 1
+      const hourNumber = Number(hour) - startsAt
+
+      const fixedBooking = await getRepository(FixedBooking).findOne({
+        field_username: fieldUsername,
+        day: new Date().getDay(),
+        field: fieldNumber,
+        hour: hourNumber,
+      })
+
+      if (fixedBooking) {
+        const username = `${fixedBooking.user_username} (turno fijo).`
+        res.json({ username, phone: fixedBooking.phone })
+      } else {
+        res.status(404).send("Booking not found.")
+      }
     }
   } catch (error) {
     console.log("Something went wrong in: getBookingsFromParams - ", error)
@@ -219,5 +240,47 @@ export const cancel = async (req: Request, res: Response) => {
       console.log("Something wen wrong in: cancel - ", error)
       res.status(500).send()
     }
+  }
+}
+
+export const setBooking = async (req: Request, res: Response) => {
+  const { day, field, hour, username, phone } = req.body
+  const { fieldUsername } = req.params
+
+  try {
+    const fixedBooking = await FixedBookingTrigger.findOne({ fieldUsername })
+    const thereIsAlreadyFixedBooking =
+      fixedBooking.bookings[day][field][hour] === false
+    if (thereIsAlreadyFixedBooking) {
+      res.send({ error: true, message: "Ya hay un turno fijo." })
+    } else {
+      fixedBooking.bookings[day][field][hour] = false
+
+      const newFixedBooking = await getRepository(FixedBooking).create({
+        field_username: fieldUsername,
+        user_username: username,
+        timestamp: new Date().toLocaleString(),
+        phone,
+        day,
+        field,
+        hour,
+      })
+
+      const result = await getRepository(FixedBooking).save(newFixedBooking)
+
+      if (result) {
+        await fixedBooking.markModified("bookings")
+        await fixedBooking.save()
+        res.send({ error: false, message: "Turno fijado!" })
+      } else {
+        console.log(
+          "Something wen wrong in: setBooking - 'result' isn't a truthy value"
+        )
+        res.status(500).send()
+      }
+    }
+  } catch (error) {
+    console.log("Something wen wrong in: setBooking - ", error)
+    res.status(500).send()
   }
 }

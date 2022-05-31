@@ -7,6 +7,7 @@ import {
   cancel,
   getBookingsFromUser,
   getUserFromBooking,
+  setBooking,
 } from "../controllers/bookings"
 
 const router = Router()
@@ -18,5 +19,6 @@ router.get("/today/:user", getBookingForUserForToday)
 router.get("/all/:user", getBookingsFromUser)
 router.get("/:fieldUsername", getBookingsByFieldUsername)
 router.post("/user/:fieldUsername", getUserFromBooking)
+router.post("/set-booking/:fieldUsername", setBooking)
 
 export default router
