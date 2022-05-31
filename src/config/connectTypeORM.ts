@@ -8,6 +8,8 @@ import { User } from "../entities/User"
 import { UserDeleted } from "../entities/UserDeleted"
 import { FixedBooking } from "../entities/FixedBooking"
 
+const migrationsToBeLoaded = "migrations/**/*.ts"
+
 export const connectTypeORM = async () =>
   await createConnection({
     type: "mysql",
@@ -17,8 +19,5 @@ export const connectTypeORM = async () =>
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [Booking, BookingDeleted, Field, User, UserDeleted, FixedBooking],
-    migrations: ["src/migrations/**/*.ts"],
-    cli: {
-      migrationsDir: "src/migrations",
-    },
+    migrations: [migrationsToBeLoaded],
   })
