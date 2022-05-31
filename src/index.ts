@@ -27,7 +27,8 @@ app.use("/bookings", bookingRouter)
 
 app.listen(PORT, () => {
   // DB Connection.
-  connectTypeORM().then(() => {
+  connectTypeORM().then(async (connection) => {
+    await connection.runMigrations()
     console.log(`Server running on port ${PORT}!`)
   })
 })
