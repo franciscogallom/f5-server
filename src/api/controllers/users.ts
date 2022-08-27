@@ -140,9 +140,7 @@ export const login = async (req: Request, res: Response) => {
               `successful login for user '${user}' (${new Date().toLocaleString()})`
             )
           } else {
-            logger.warn(
-              `incorrect password '${password}' for user '${user} in login'`
-            )
+            logger.warn(`incorrect password for user '${user}' in login.`)
             res.status(404).json({ message: "revisa los datos" })
           }
         }
