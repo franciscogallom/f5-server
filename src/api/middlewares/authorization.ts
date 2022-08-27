@@ -1,3 +1,7 @@
+import { getLogger } from "log4js"
+const logger = getLogger("authorization.ts")
+logger.level = "all"
+
 import { NextFunction, Request, Response } from "express"
 import jwt from "jsonwebtoken"
 
@@ -29,7 +33,7 @@ export default function (req: Request, res: Response, next: NextFunction) {
       req.decodedToken = decodedToken
       next()
     } catch (error) {
-      console.log("Something went wrong in: userExtractor - ", error)
+      logger.error("Something went wrong in: authorization - ", error)
       res.status(500).send("Unauthorized.")
     }
   }

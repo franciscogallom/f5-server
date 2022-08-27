@@ -1,6 +1,10 @@
 import dotenv from "dotenv"
 dotenv.config()
 
+import { getLogger } from "log4js"
+const logger = getLogger("index.ts")
+logger.level = "all"
+
 import "./config/mongooseConnect"
 import express from "express"
 import cors from "cors"
@@ -29,6 +33,6 @@ app.listen(PORT, () => {
   // DB Connection.
   connectTypeORM().then(async (connection) => {
     await connection.runMigrations()
-    console.log(`Server running on port ${PORT}!`)
+    logger.info(`Server running on port ${PORT}!`)
   })
 })

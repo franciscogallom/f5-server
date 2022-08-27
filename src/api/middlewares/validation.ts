@@ -1,3 +1,7 @@
+import { getLogger } from "log4js"
+const logger = getLogger("validation.ts")
+logger.level = "all"
+
 import { SchemaOf } from "yup"
 import { NextFunction, Request, Response } from "express"
 
@@ -28,6 +32,7 @@ export const validation =
       await schema.validate(body)
       next()
     } catch (error) {
+      logger.error("Something went wrong in: validation " + error)
       return res.status(400).json({ error })
     }
   }

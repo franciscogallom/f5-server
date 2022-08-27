@@ -1,3 +1,7 @@
+import { getLogger } from "log4js"
+const logger = getLogger("bookings.ts")
+logger.level = "all"
+
 import { Request, Response } from "express"
 import { getRepository, Like } from "typeorm"
 
@@ -14,7 +18,7 @@ export const getBookings = async (req: Request, res: Response) => {
     const bookings = await getRepository(Booking).find()
     res.json(bookings)
   } catch (error) {
-    console.log("Something went wrong in: getBookings - ", error)
+    logger.error("Something went wrong in: getBookings - " + error)
     res.status(500).send()
   }
 }
@@ -28,7 +32,9 @@ export const getBookingsByFieldUsername = async (
     const bookingHours = await BookingHours.findOne({ fieldUsername })
     res.json(bookingHours)
   } catch (error) {
-    console.log("Something went wrong in: getBookingsByFieldUsername - ", error)
+    logger.error(
+      "Something went wrong in: getBookingsByFieldUsername - " + error
+    )
     res.status(500).send()
   }
 }
@@ -42,7 +48,7 @@ export const getBookingsFromUser = async (req: Request, res: Response) => {
     })
     res.json(bookings)
   } catch (error) {
-    console.log("Something went wrong in: getBookingsFromUser - ", error)
+    logger.error("Something went wrong in: getBookingsFromUser - " + error)
     res.status(500).send()
   }
 }
@@ -92,7 +98,7 @@ export const getUserFromBooking = async (req: Request, res: Response) => {
       }
     }
   } catch (error) {
-    console.log("Something went wrong in: getBookingsFromParams - ", error)
+    logger.error("Something went wrong in: getBookingsFromParams - " + error)
     res.status(500).send()
   }
 }
@@ -133,15 +139,15 @@ export const getBookingForUserForToday = async (
         ]
         res.json(response)
       } else {
-        console.log("Something went wrong with fieldData")
+        logger.warn("Something went wrong with fieldData")
         res.status(500).send()
       }
     } else {
-      console.log(`${user} has no reservations for today ${today}`)
+      // User has no reservations for today.
       res.send([])
     }
   } catch (error) {
-    console.log("Something wen wrong in: getBookingForUserForToday - ", error)
+    logger.error("Something wen wrong in: getBookingForUserForToday - " + error)
     res.status(500).send()
   }
 }
@@ -159,7 +165,7 @@ export const reserve = async (req: Request, res: Response) => {
     const vectorPosition = Number(hour) - startsAt
 
     if (!bookings[numberOfField].hours[vectorPosition]) {
-      console.log(
+      logger.warn(
         `La ${field} de ${fieldUsername} ya esta alquilada a las ${hour}:00hs.`
       )
       res.status(500).send()
@@ -187,12 +193,12 @@ export const reserve = async (req: Request, res: Response) => {
           field: result.field,
         })
       } else {
-        console.log("Something went wrong when saving the new booking.")
+        logger.error("Something went wrong when saving the new booking.")
         res.status(500).send()
       }
     }
   } catch (error) {
-    console.log("Something wen wrong in: reserve - ", error)
+    logger.error("Something wen wrong in: reserve - " + error)
     res.status(500).send()
   }
 }
@@ -214,7 +220,7 @@ export const cancel = async (req: Request, res: Response) => {
       const { bookings, startsAt } = bookingHours
       const vectorPosition = Number(hour) - startsAt
       if (bookings[numberOfField].hours[vectorPosition]) {
-        console.log("There is not a booking")
+        logger.warn("There is not a booking")
         res.status(500).send()
       } else {
         bookings[numberOfField].hours[vectorPosition] = true
@@ -232,12 +238,12 @@ export const cancel = async (req: Request, res: Response) => {
             message: "Turno cancelado satisfactoriamente.",
           })
         } else {
-          console.log("bookingToUpdate is undefined")
+          logger.warn("bookingToUpdate is undefined")
           res.status(500).send()
         }
       }
     } catch (error) {
-      console.log("Something wen wrong in: cancel - ", error)
+      logger.error("Something wen wrong in: cancel - " + error)
       res.status(500).send()
     }
   }
@@ -273,14 +279,14 @@ export const setBooking = async (req: Request, res: Response) => {
         await fixedBooking.save()
         res.send({ error: false, message: "Turno fijado!" })
       } else {
-        console.log(
+        logger.warn(
           "Something wen wrong in: setBooking - 'result' isn't a truthy value"
         )
         res.status(500).send()
       }
     }
   } catch (error) {
-    console.log("Something wen wrong in: setBooking - ", error)
+    logger.error("Something went wrong in: setBooking - " + error)
     res.status(500).send()
   }
 }

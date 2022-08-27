@@ -1,4 +1,8 @@
-import { Request, Response, urlencoded } from "express"
+import { getLogger } from "log4js"
+const logger = getLogger("users.ts")
+logger.level = "all"
+
+import { Request, Response } from "express"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { getRepository } from "typeorm"
@@ -17,7 +21,7 @@ export const signup = async (req: Request, res: Response) => {
   const existingData = await validateExistingData(user, email, phone)
 
   if (existingData) {
-    console.log("There are existingData: ", existingData)
+    logger.warn("There are existingData: " + existingData)
     res.send({
       thereIsExistingData: true,
       result: null,
@@ -26,7 +30,7 @@ export const signup = async (req: Request, res: Response) => {
   } else {
     bcrypt.hash(data.password, 10, async (error, hash: string) => {
       if (error) {
-        console.log("bcrypt.hash error in signup: -", error)
+        logger.error("bcrypt.hash error in signup: - " + error)
         res.status(500).send()
       } else {
         try {
@@ -37,7 +41,7 @@ export const signup = async (req: Request, res: Response) => {
           })
           const result: any = await getRepository(User).save(newUser)
           if (result) {
-            console.log(`user adding! '${data.user}' at ${created}`)
+            logger.info(`user adding! '${data.user}' at ${created}`)
             const userForToken = {
               id: result.id,
               username: data.user,
@@ -49,11 +53,11 @@ export const signup = async (req: Request, res: Response) => {
               token,
             })
           } else {
-            console.log("result is undefined")
+            logger.warn("result is undefined")
             res.status(500).send()
           }
         } catch (error) {
-          console.log("Something went wrong in: signup - ", error)
+          logger.error("Something went wrong in: signup - " + error)
           res.status(500).send()
         }
       }
@@ -91,7 +95,7 @@ export const verifyEmailExists = async (req: Request, res: Response) => {
       res.send("")
     }
   } catch (error) {
-    console.log("Something went wrong in: verifyEmailExists - ", error)
+    logger.error("Something went wrong in: verifyEmailExists - ", error)
     res.status(500).send()
   }
 }
@@ -106,7 +110,9 @@ export const emailVerification = async (req: Request, res: Response) => {
       res.send(verificationCode)
     })
     .catch((error) => {
-      console.log("sendVerificationCode error in emailVerification: -", error)
+      logger.error(
+        "sendVerificationCode error in: emailVerification - " + error
+      )
       res.status(500).send()
     })
 }
@@ -121,7 +127,7 @@ export const login = async (req: Request, res: Response) => {
         userResult.password,
         (error, result: boolean) => {
           if (error) {
-            console.log("bcrypt.compare error in login: ", error)
+            logger.error("bcrypt.compare error in: login - " + error)
             res.status(500).send()
           } else if (result) {
             const userForToken = {
@@ -130,11 +136,11 @@ export const login = async (req: Request, res: Response) => {
             }
             const token = jwt.sign(userForToken, `${process.env.SECRET}`)
             res.json({ token })
-            console.log(
+            logger.info(
               `successful login for user '${user}' (${new Date().toLocaleString()})`
             )
           } else {
-            console.log(
+            logger.warn(
               `incorrect password '${password}' for user '${user} in login'`
             )
             res.status(404).json({ message: "revisa los datos" })
@@ -142,11 +148,11 @@ export const login = async (req: Request, res: Response) => {
         }
       )
     } else {
-      console.log(`the user '${user}' does not exist`)
+      logger.warn(`the user '${user}' does not exist`)
       res.status(404).json({ message: "revisa los datos" })
     }
   } catch (error) {
-    console.log("Something went wrong in: login - ", error)
+    logger.error("Something went wrong in: login - ", error)
     res.status(500).send()
   }
 }
@@ -156,7 +162,7 @@ export const getUsers = async (req: Request, res: Response) => {
     const users = await getRepository(User).find()
     res.json(users)
   } catch (error) {
-    console.log("Something went wrong in: getUsers - ", error)
+    logger.info("Something went wrong in: getUsers - " + error)
     res.status(500).send()
   }
 }
@@ -168,11 +174,11 @@ export const getUser = async (req: Request, res: Response) => {
     if (response) {
       res.json(response)
     } else {
-      console.log(`'response' is undefined for username '${user}'`)
+      logger.warn(`'response' is undefined for username '${user}'`)
       res.status(404).send()
     }
   } catch (error) {
-    console.log("Something went wrong in: getUser - ", error)
+    logger.error("Something went wrong in: getUser - " + error)
     res.status(500).send()
   }
 }
@@ -200,11 +206,11 @@ export const updateUsername = async (req: Request, res: Response) => {
         })
       }
     } else {
-      console.log(`'user' is undefined for username: ${currentUsername}`)
+      logger.warn(`'user' is undefined for username: ${currentUsername}`)
       res.status(404).send()
     }
   } catch (error) {
-    console.log("Something went wrong in: updateUsername - ", error)
+    logger.error("Something went wrong in: updateUsername - " + error)
     res.status(500).send()
   }
 }
@@ -232,11 +238,11 @@ export const updateEmail = async (req: Request, res: Response) => {
         })
       }
     } else {
-      console.log(`'user' is undefined for username: ${username}`)
+      logger.warn(`'user' is undefined for username: ${username}`)
       res.status(404).send()
     }
   } catch (error) {
-    console.log("Something went wrong in: updateEmail - ", error)
+    logger.error("Something went wrong in: updateEmail - " + error)
     res.status(500).send()
   }
 }
@@ -264,11 +270,11 @@ export const updatePhone = async (req: Request, res: Response) => {
         })
       }
     } else {
-      console.log(`'user' is undefined for username: ${username}`)
+      logger.warn(`'user' is undefined for username: ${username}`)
       res.status(404).send()
     }
   } catch (error) {
-    console.log("Something went wrong in: updatePhone - ", error)
+    logger.error("Something went wrong in: updatePhone - " + error)
     res.status(500).send()
   }
 }
@@ -281,13 +287,13 @@ export const updatePassword = async (req: Request, res: Response) => {
     if (user) {
       bcrypt.compare(currentPass, user.password, (error, result: boolean) => {
         if (error) {
-          console.log("bcrypt.compare error in updatePassword: ", error)
+          logger.error("bcrypt.compare error in updatePassword: ", error)
           res.status(500).send()
         } else if (result) {
           // The current password is correct.
           bcrypt.hash(newPass, 10, async (error, hash: string) => {
             if (error) {
-              console.log("bcrypt.hash error in updatePassword: -", error)
+              logger.error("bcrypt.hash error in updatePassword: -", error)
               res.status(500).send()
             } else {
               // The new password is encrypted and saved.
@@ -300,7 +306,7 @@ export const updatePassword = async (req: Request, res: Response) => {
             }
           })
         } else {
-          console.log(
+          logger.warn(
             `incorrect current password '${currentPass}' for user '${user.user}'`
           )
           res.send({
@@ -311,7 +317,7 @@ export const updatePassword = async (req: Request, res: Response) => {
       })
     }
   } catch (error) {
-    console.log("Something went wrong in: updatePassword - ", error)
+    logger.error("Something went wrong in: updatePassword - " + error)
     res.status(500).send()
   }
 }
@@ -330,12 +336,12 @@ export const removeUser = async (req: Request, res: Response) => {
         user.password,
         async (error, result: boolean) => {
           if (error) {
-            console.log("bcrypt.compare error in removeUser: ", error)
+            logger.error("bcrypt.compare error in removeUser: ", error)
             res.status(500).send()
           } else if (result) {
             const result = await getRepository(User).delete({ user: username })
             if (result.affected === 0) {
-              console.log(`There is no user with username: ${username}`)
+              logger.warn(`There is no user with username: ${username}`)
               res.status(404).send()
             } else {
               // - Save bookings deleted.
@@ -354,7 +360,7 @@ export const removeUser = async (req: Request, res: Response) => {
               res.json(user)
             }
           } else {
-            console.log(
+            logger.warn(
               `incorrect password '${password}' for user '${username}' in removeUser`
             )
             res.json({ message: "La contraseña es incorrecta." })
@@ -362,11 +368,11 @@ export const removeUser = async (req: Request, res: Response) => {
         }
       )
     } else {
-      console.log(`There is no user with username: ${username}`)
+      logger.warn(`There is no user with username: ${username}`)
       res.status(404).send()
     }
   } catch (error) {
-    console.log("Something went wrong in: removeUser - ", error)
+    logger.error("Something went wrong in: removeUser - " + error)
     res.status(500).send()
   }
 }
@@ -381,7 +387,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
       }`
       bcrypt.hash(newPass, 10, async (error, hash: string) => {
         if (error) {
-          console.log("bcrypt.hash error in forgotPassword: -", error)
+          logger.error("bcrypt.hash error in forgotPassword: - " + error)
           res.status(500).send()
         } else {
           await getRepository(User).merge(user, { password: hash })
@@ -394,20 +400,20 @@ export const forgotPassword = async (req: Request, res: Response) => {
               })
             })
             .catch((error) => {
-              console.log("sendMail error in forgotPassword: -", error)
+              logger.error("sendMail error in forgotPassword: - " + error)
               res.status(500).send()
             })
         }
       })
     } else {
-      console.log(`'user' is undefined for email: ${email}`)
+      logger.warn(`'user' is undefined for email: ${email}`)
       res.send({
         error: true,
         message: "El email no está registrado.",
       })
     }
   } catch (error) {
-    console.log("Something went wrong in: forgotPassword - ", error)
+    logger.warn("Something went wrong in: forgotPassword - " + error)
     res.status(500).send()
   }
 }
