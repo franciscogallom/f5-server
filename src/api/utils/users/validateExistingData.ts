@@ -1,3 +1,7 @@
+import { getLogger } from "log4js"
+const logger = getLogger("validateExistingData.ts")
+logger.level = "all"
+
 import { getRepository } from "typeorm"
 import { User } from "../../../entities/User"
 
@@ -20,7 +24,7 @@ export const validateExistingData = async (
       return false
     }
   } catch (error) {
-    console.log("Something went wrong in: validateExistingData - ", error)
+    logger.error("Something went wrong in: validateExistingData - " + error)
     return "algo salió mal..."
   }
 }
