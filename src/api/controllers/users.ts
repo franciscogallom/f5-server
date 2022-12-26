@@ -11,7 +11,6 @@ import { validateExistingData } from "../utils/users/validateExistingData"
 import { sendMail } from "../utils/users/sendEmail"
 import { Booking } from "../../entities/Booking"
 import { UserDeleted } from "../../entities/UserDeleted"
-import { BookingDeleted } from "../../entities/BookingDeleted"
 import { sendVerificationCode } from "../utils/users/sendVerificationCode"
 
 export const signup = async (req: Request, res: Response) => {
@@ -342,11 +341,6 @@ export const removeUser = async (req: Request, res: Response) => {
               logger.warn(`There is no user with username: ${username}`)
               res.status(404).send()
             } else {
-              // - Save bookings deleted.
-              const bookingsOfTheDeletedUser = await getRepository(
-                Booking
-              ).find({ user: username, cancelled: false })
-              await getRepository(BookingDeleted).save(bookingsOfTheDeletedUser)
               // - Save user deleted
               const newUserDeleted = await getRepository(UserDeleted).create({
                 ...user,
