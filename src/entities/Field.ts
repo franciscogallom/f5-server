@@ -31,4 +31,7 @@ export class Field {
 
   @Column("varchar", { length: 10, nullable: false })
   price: string
+
+  @Column("varchar", { length: 200, nullable: false })
+  email: string
 }
